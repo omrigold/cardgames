@@ -1,13 +1,13 @@
 from itertools import product
 import random
 
-# class Suit():
-#     '''Methods and attributes of a card suit or color'''
+class Suit():
+    '''Methods and attributes of a card suit or color'''
 
-#     def __init__(self, name, abbrev=None, expanded=None):
-#         self.name = name 
-#         self.abbrev = abbrev if abbrev else name[0]
-#         self.expanded = expanded if expanded else f"{rank} of {suit}"
+    def __init__(self, name, symbol=None, expanded=None):
+        self.name = name 
+        self.symbol = symbol if symbol else name[0]
+        # self.expanded = expanded if expanded else f"{rank} of {suit}"
         
 
 class Card():
@@ -16,9 +16,17 @@ class Card():
     def __init__(self, rank, suit=None):
         self.rank = rank
         self.suit = suit
+        self.fullname = f'{self.rank} of {self.suit.name}'
+        self.shortname = f'{self.rank[0]}{self.suit.symbol}'
+        self.visible = True
     
-    def __str__(self):
-        return '{self.suit} {self.rank}'.format(self=self)
+    def __repr__(self):
+        return self.fullname
+
+    def display(self, full=False):
+        ''' Display card suit & rank or '|?|' if visibility off '''
+        name = self.fullname if full else self.shortname 
+        print(name if self.visible else '|?|')
 
 class Deck():
     '''Methods and attributes of a deck of playing cards'''
@@ -28,7 +36,7 @@ class Deck():
         self.talon = []
         self.discard = []
     
-    def __str__(self):
+    def __repr__(self):
         return '\n'.join('{card.suit} {card.rank}'.format(card=card) for card in self.cards)
     
     def shuffle(self, pile=None):
@@ -41,7 +49,7 @@ class StandardDeck(Deck):
 
     def __init__(self):
         ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace']
-        suits = ['Diamonds', 'Clubs', 'Hearts', 'Spades']
+        suits = [Suit('Diamonds','♦'), Suit('Clubs','♣'), Suit('Hearts','♥'), Suit('Spades','♠')]
         self.cards = [Card(rank, suit) for rank, suit in product(ranks, suits)]
         self.rank_order = {
             '2': 0,
@@ -58,10 +66,6 @@ class StandardDeck(Deck):
             'King': 11,
             'Ace': 12
         }
-        spade = '♠'
-        heart = '♥'
-        diamond = '♦'
-        club = '♣'
 
 class Player():
     '''Methods and attributes of a player of a card game'''
@@ -72,16 +76,18 @@ class Player():
 class Game():
     '''Base methods and attributes of general card games'''
 
-    def create_players(self, player_count, has_dealer):
-        # create number of players in player_count
-        pass
+    def create_players(self, player_count=0, has_dealer=False):
+        ''' Instantiate game players '''
+        self.players = []
+        for player in range(player_count):
+            self.players += Player('Player ' + str(player + 1))
 
     def assign_order(self):
         # for each player, randomly assign their positions
         # if there's a dealer role, assign the dealer and place their position last
         pass
 
-class War():
+class War(Game):
     '''
     Play the game War using a standard deck.
     Rules: https://bicyclecards.com/how-to-play/war/
@@ -100,6 +106,7 @@ class War():
         # evaluate card ranks:
         #   if one card greater, add these cards to the bottom of this player's deck
         #   if ranks equal, start war
+        pass
 
 deck = StandardDeck()
-print(deck)
+# print(deck)
