@@ -66,6 +66,15 @@ class StandardDeck(Deck):
             'Ace': 12
         }
 
+class JunoDeck(Deck):
+    '''Instantiate a "Juno" style playing card deck'''
+
+    def __init__(self):
+        ranks = ['0','1','2', '3', '4', '5', '6', '7', '8', '9']
+        suits = [Suit('Green'), Suit('Yellow'), Suit('Blue'), Suit('Red')]
+        specials = ['2+','Skip','Reverse','Wild','Wild +4','Wild Shuffle']
+        super().__init__(cards=[Card(rank, suit) for rank, suit in product(ranks, suits)])
+
 class Player():
     '''Methods and attributes of a player of a card game'''
 
