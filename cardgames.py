@@ -24,7 +24,7 @@ class Card():
         return self.fullname
 
     def display(self, full=False):
-        ''' Display card suit & rank or '|?|' if visibility off '''
+        ''' Display card suit & rank or conceal info if visibility off '''
         name = self.fullname if full else self.shortname 
         print(name if self.visible else '|?|')
 
@@ -37,12 +37,11 @@ class Deck():
         self.discard = []
     
     def __repr__(self):
-        return '\n'.join('{card.suit} {card.rank}'.format(card=card) for card in self.cards)
+        return '\n'.join('{card.suit.name} {card.rank}'.format(card=card) for card in self.cards)
     
     def shuffle(self, pile=None):
-        shuffle_pile = pile if pile else self.cards
-        self.talon = random.sample(shuffle_pile, len(shuffle_pile))
-        print('\n'.join('{card.suit} {card.rank}'.format(card=card) for card in self.talon))
+        if pile is None: pile = self.cards
+        return random.sample(pile, len(pile))
 
 class StandardDeck(Deck):
     '''Instantiate a standard playing card deck'''
@@ -50,7 +49,7 @@ class StandardDeck(Deck):
     def __init__(self):
         ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King', 'Ace']
         suits = [Suit('Diamonds','♦'), Suit('Clubs','♣'), Suit('Hearts','♥'), Suit('Spades','♠')]
-        self.cards = [Card(rank, suit) for rank, suit in product(ranks, suits)]
+        super().__init__(cards=[Card(rank, suit) for rank, suit in product(ranks, suits)])
         self.rank_order = {
             '2': 0,
             '3': 1,
@@ -70,22 +69,27 @@ class StandardDeck(Deck):
 class Player():
     '''Methods and attributes of a player of a card game'''
 
-    def __init__(self, isDealer=False):
+    def __init__(self, name, isDealer=False):
+        self.name = name
         self.isDealer = isDealer
 
 class Game():
     '''Base methods and attributes of general card games'''
 
-    def create_players(self, player_count=0, has_dealer=False):
-        ''' Instantiate game players '''
+    def __init__(self):
         self.players = []
-        for player in range(player_count):
-            self.players += Player('Player ' + str(player + 1))
+        self.player_order = []
+        self.current_player = 0
+
+    def add_players(self, players, has_dealer=False):
+        ''' Instantiate game players '''
+        for player in players:
+            self.players += Player(player)
 
     def assign_order(self):
         # for each player, randomly assign their positions
         # if there's a dealer role, assign the dealer and place their position last
-        pass
+        self.players = random.sample(self.players, len(self.players))
 
 class War(Game):
     '''
@@ -94,10 +98,17 @@ class War(Game):
     '''
 
     def __init__(self):
-        super().__init__(self)
+        # super().__init__()
         # create 1 standard deck of cards
+        self.deck = StandardDeck()
+
         # shuffle deck
-        # instantiate 2 players
+        self.deck.talon = self.deck.shuffle()
+
+        # instantiate 2 players with no dealer role and assign a play order
+        super().add_players(players=['Player 1','Player 2'], has_dealer=False)
+        super().assign_order()
+
         # deal whole deck evenly among them
         pass
 
